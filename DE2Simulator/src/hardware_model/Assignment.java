@@ -1,22 +1,20 @@
 package hardware_model;
 
-import hardware_model.Instruction;
+public class Assignment {
 
-public class Assignment implements Instruction {
-
-	String variableName;
+	Variable assigningVariable;
 	Operation operation;
 	
-	public String getAssigningVariable() {
-		return variableName;
+	public Variable getAssigningVariable() {
+		return assigningVariable;
 	}
 
 	public Operation getAssignedOperation() {
 		return operation;
 	}
 
-	public void setAssigningVariable(String assigningVariable) {
-		variableName = assigningVariable;
+	public void setAssigningVariable(Variable variable) {
+		assigningVariable = variable;
 	}
 
 	public void setAssignedOperation(Operation assignedOperation) {
@@ -25,7 +23,7 @@ public class Assignment implements Instruction {
 	
 	@Override
 	public String toString(){
-		return variableName + " <= " + operation;
+		return assigningVariable + " <= " + operation;
 	}
 
 }

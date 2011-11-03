@@ -1,19 +1,15 @@
 package hardware_model;
 
-import hardware_model.Condition;
-import hardware_model.Instruction;
-import hardware_model.LoopingCodeBlock;
-
 import java.util.HashSet;
 import java.util.Set;
 
 public class Combinational implements LoopingCodeBlock {
 
-	Set<Instruction> instructions;
+	Set<Assignment> instructions;
 	Condition condition;
 	
 	public Combinational(Condition loop){
-		instructions = new HashSet<Instruction>();
+		instructions = new HashSet<Assignment>();
 		condition = loop;
 	}
 	
@@ -27,12 +23,12 @@ public class Combinational implements LoopingCodeBlock {
 	}
 
 	@Override
-	public Set<Instruction> getInstructions() {
+	public Set<Assignment> getInstructions() {
 		return instructions;
 	}
 
 	@Override
-	public void addInstruction(Instruction instruction) {
+	public void addInstruction(Assignment instruction) {
 		instructions.add(instruction);
 	}
 
