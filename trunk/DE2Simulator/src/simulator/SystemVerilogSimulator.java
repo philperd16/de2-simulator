@@ -1,34 +1,44 @@
 package simulator;
 
-import hardware_model.HardwareModel;
+import hardware_model.Assignment;
+import hardware_model.Combinational;
+import hardware_model.ModuleDefinition;
+import hardware_model.Variable;
+import hdl_binding.ParsingException;
 import hdl_binding.SystemVerilogParser;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Scanner;
+import java.util.Map;
 import java.util.Set;
 
 
 public class SystemVerilogSimulator {
 
-	public static void main(String[] args) throws Exception{
+	Parser parser;
+	Map<ModuleDefinition, Set<Variable>> model;
+	Map<ModuleDefinition, Set<InstructionThread>> combinationalThreads;
+	
+	public SystemVerilogSimulator(){
+		parser = new SystemVerilogParser();
+		model = new HashMap<ModuleDefinition, Set<Variable>>();
+	}
+
+	public void prepareSimulation(Set<String> modules) throws ParsingException{
+		parser.parseHDLCode(modules);
 		
-		Set<String> modules = new HashSet<String>();
-		
-		Scanner sc = new Scanner(System.in);
-		StringBuilder module = new StringBuilder();
-		while ( sc.hasNext() ){
-			String nextLine = sc.nextLine();
-			if ( nextLine.trim().equals("ITSOK") ){
-				break;
+		for ( ModuleDefinition module : parser.getGeneratedHardwareModel().getDefinedModules() ){
+			
+			model.put(module, new HashSet<Variable>(module.getAllVariables()));
+			
+			for ( Combinational combinational : module.getCombinationalBlocks() ){
+				for ( Assignment instruction : combinational.getInstructions() ){
+					Set<InstructionThread> threads = new HashSet<InstructionThread>();
+					InstructionThread combinationalAssignment = new InstructionThread(instruction, module.getAllVariables());
+					threads.add(combinationalAssignment);
+				}
 			}
-			module.append(nextLine);
-			module.append("/n");
-			System.out.println("appended");
 		}
-		modules.add(new String(module));
-		SystemVerilogParser parser = new SystemVerilogParser(modules);
-		HardwareModel model = parser.getGeneratedHardwareModel();
-		System.out.println(model);
 	}
 	
 //MOST COMPLEX EXAMPLE THAT WORKS?

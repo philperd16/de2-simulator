@@ -7,6 +7,7 @@ public class Variable {
 	int size;
 	String name;
 	int amount;
+	int value;
 	
 	public Variable(String meaning, String kind, int size,
 			String name, int amount) {
@@ -15,6 +16,7 @@ public class Variable {
 		this.size = size;
 		this.name = name;
 		this.amount = amount;
+		this.value = 0;
 	}
 
 	public String getMeaning() {
@@ -34,6 +36,19 @@ public class Variable {
 	}
 
 	public String getName() {
+		return name;
+	}
+	
+	public int getValue() {
+		return value;
+	}
+	
+	public void setValue(int value){
+		this.value = value;
+	}
+	
+	@Override
+	public String toString(){
 		return name;
 	}
 

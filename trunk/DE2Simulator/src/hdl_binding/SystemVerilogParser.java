@@ -5,29 +5,30 @@ import hardware_model.Combinational;
 import hardware_model.HardwareModel;
 import hardware_model.ModuleDefinition;
 import hardware_model.Operation;
+import hardware_model.Variable;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class SystemVerilogParser {
+import simulator.Parser;
+
+public class SystemVerilogParser implements Parser {
 
 	Set<String> modules;
 	HardwareModel model;
 	
-	public SystemVerilogParser(Set<String> modules) throws ParsingException{
+	@Override
+	public HardwareModel parseHDLCode(Set<String> modules) throws ParsingException{
 		this.modules = modules;
-		this.model = parseHDLCode();
-	}
-	
-	private HardwareModel parseHDLCode() throws ParsingException{
-		HardwareModel model = new HardwareModel();
+		model = new HardwareModel();
 		for ( String module : modules ){
 			model.defineModule(createModule(module));
 		}
 		return model;
 	}
 
-	private ModuleDefinition createModule(String moduleCode) throws ParsingException{
+	@Override
+	public ModuleDefinition createModule(String moduleCode) throws ParsingException{
 
 		String moduleName = findModuleName(moduleCode);
 		ModuleDefinition module = new ModuleDefinition(moduleName);
@@ -153,7 +154,12 @@ public class SystemVerilogParser {
 					String assigningVariable = elements[0].trim();
 					String assignedOperationOrValue = elements[1].trim();
 					Assignment assignment = new Assignment();
-					assignment.setAssigningVariable(assigningVariable);
+					for ( Variable variable : module.getAllVariables() ){
+						if ( variable.getName().equals(assigningVariable)) {
+							assignment.setAssigningVariable(variable);
+							break;
+						}
+					}
 					assignment.setAssignedOperation(new Operation(assignedOperationOrValue));
 					combinationalBlock.addInstruction(assignment);
 				}
@@ -163,7 +169,8 @@ public class SystemVerilogParser {
 		return module;
 	}
 
-	private Set<String> findInputAndOutputVariables(String moduleCode) {
+	@Override
+	public Set<String> findInputAndOutputVariables(String moduleCode) {
 
 		Set<String> variables = new HashSet<String>();
 		
@@ -177,7 +184,8 @@ public class SystemVerilogParser {
 		return variables;
 	}
 
-	private String retrieveInputAndOutputVariablesScope(String moduleCode) {
+	@Override
+	public String retrieveInputAndOutputVariablesScope(String moduleCode) {
 		
 		int validOpeningParentesis = 0;
 		do{
@@ -190,7 +198,8 @@ public class SystemVerilogParser {
 		return moduleCode.substring(validOpeningParentesis+1, validClosingParentesis);
 	}
 
-	private String retrieveModuleBodyScope(String moduleCode) {
+	@Override
+	public String retrieveModuleBodyScope(String moduleCode) {
 		
 		int validBeggining = moduleCode.indexOf(");");
 		int validEnding = moduleCode.indexOf("endmodule");
@@ -198,7 +207,8 @@ public class SystemVerilogParser {
 		return moduleCode.substring(validBeggining+2, validEnding);
 	}
 	
-	private String findModuleName(String module) throws ParsingException{
+	@Override
+	public String findModuleName(String module) throws ParsingException{
 		String[] words = module.split(" ");
 		for ( int i=0; i<words.length; i++ ){
 			if ( words[i].equals("module") ){
@@ -208,6 +218,7 @@ public class SystemVerilogParser {
 		throw new ParsingException("Could not find module name");
 	}
 
+	@Override
 	public HardwareModel getGeneratedHardwareModel() {
 		return model;
 	}

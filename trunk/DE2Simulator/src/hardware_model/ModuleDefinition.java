@@ -51,6 +51,13 @@ public class ModuleDefinition {
 		return sequentialBlocks;
 	}
 
+	public Set<Variable> getAllVariables() {
+		Set<Variable> all = new HashSet<Variable>(localVariables);
+		all.addAll(inputVariables);
+		all.addAll(outputVariables);
+		return all;
+	}
+	
 	public void addInputVariable(String meaning, String kind, int size,
 			String name, int amount) {
 		inputVariables.add(new Variable(meaning, kind, size, name, amount));
