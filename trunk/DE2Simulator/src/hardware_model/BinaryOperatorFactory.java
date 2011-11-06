@@ -2,18 +2,18 @@ package hardware_model;
 
 public class BinaryOperatorFactory {
 
-	public static Operator createNewBinaryOperator(String operator, int precedence) {
+	public static BinaryOperator createNewBinaryOperator(String operator, int precedence) {
 		if ( operator.equals("&") ){
 			return new BitwiseAndOperator(precedence);
 		}
 		else if ( operator.equals("&&") ){
-			return new LogicAndOperator(precedence);
+			return new LogicalAndOperator(precedence);
 		}
 		else if ( operator.equals("|") ){
 			return new BitwiseOrOperator(precedence);
 		}
 		else if ( operator.equals("||") ){
-			return new LogicOrOperator(precedence);
+			return new LogicalOrOperator(precedence);
 		}
 		else if ( operator.equals("^") ){
 			return new BitwiseXorOperator(precedence);
@@ -25,13 +25,22 @@ public class BinaryOperatorFactory {
 			return new BitwiseSubtractOperator(precedence);
 		}
 		else if ( operator.equals(">>") ){
-			return new LogicShiftRightOperator(precedence);
+			return new LogicalShiftRightOperator(precedence);
+		}
+		else if ( operator.equals(">>!") ){
+			return new LogicalShiftRightOperatorInverted(precedence);
 		}
 		else if ( operator.equals(">>>") ){
-			return new ArihtimeticShiftRightOperator(precedence);
+			return new ArithmeticShiftRightOperator(precedence);
+		}
+		else if ( operator.equals(">>>!") ){
+			return new ArihtimeticShiftRightOperatorInverted(precedence);
 		}
 		else if ( operator.equals("<<") ){
-			return new LogicShiftLeftOperator(precedence);
+			return new LogicalShiftLeftOperator(precedence);
+		}
+		else if ( operator.equals("<<!") ){
+			return new LogicalShiftLeftOperatorInverted(precedence);
 		}
 		else{
 			return null;

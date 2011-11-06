@@ -1,20 +1,20 @@
 package hardware_model;
 
 
-public class BitwiseAddOperator extends BinaryOperator {
+public class LogicalOrOperator extends BinaryOperator {
 
-	public BitwiseAddOperator(int precedence) {
+	public LogicalOrOperator(int precedence) {
 		super(precedence);
 	}
 
 	@Override
 	public String getIdentifier() {
-		return "+";
+		return "||";
 	}
 
 	@Override
 	public int doOperation(int operand1, int operand2) {
-		return operand1 + operand2;
+		return (operand1 != 0) && (operand2 != 0) ? 1 : 0;
 	}
 
 }

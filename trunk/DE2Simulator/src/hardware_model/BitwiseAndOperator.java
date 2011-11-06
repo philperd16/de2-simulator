@@ -1,19 +1,20 @@
 package hardware_model;
 
-public class BitwiseAndOperator extends Operator {
+public class BitwiseAndOperator extends BinaryOperator {
 
 	public BitwiseAndOperator(int precedence) {
 		super(precedence);
 	}
 
-	@Override
-	public OperationElementType getType() {
-		return OperationElementType.BINARY_OPERATOR;
-	}
 
 	@Override
 	public String getIdentifier() {
 		return "&";
+	}
+
+	@Override
+	public int doOperation(int operand1, int operand2) {
+		return operand1 & operand2;
 	}
 
 }

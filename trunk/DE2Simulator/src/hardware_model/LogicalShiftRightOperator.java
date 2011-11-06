@@ -1,20 +1,19 @@
 package hardware_model;
 
+public class LogicalShiftRightOperator extends BinaryOperator {
 
-public class BitwiseAddOperator extends BinaryOperator {
-
-	public BitwiseAddOperator(int precedence) {
+	public LogicalShiftRightOperator(int precedence) {
 		super(precedence);
 	}
 
 	@Override
 	public String getIdentifier() {
-		return "+";
+		return ">>";
 	}
 
 	@Override
 	public int doOperation(int operand1, int operand2) {
-		return operand1 + operand2;
+		return operand1 >> operand2;
 	}
 
 }

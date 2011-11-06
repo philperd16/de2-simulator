@@ -4,19 +4,15 @@ public class Variable {
 
 	String meaning;
 	String kind;
-	int size;
 	String name;
-	int amount;
-	int value;
+	Value value;
 	
 	public Variable(String meaning, String kind, int size,
 			String name, int amount) {
 		this.meaning = meaning;
 		this.kind = kind;
-		this.size = size;
 		this.name = name;
-		this.amount = amount;
-		this.value = 0;
+		this.value = new Value(size, amount);
 	}
 
 	public String getMeaning() {
@@ -28,11 +24,11 @@ public class Variable {
 	}
 
 	public int getSize() {
-		return size;
+		return value.getSize();
 	}
 
 	public int getAmount() {
-		return amount;
+		return value.getAmount();
 	}
 
 	public String getName() {
@@ -40,11 +36,11 @@ public class Variable {
 	}
 	
 	public int getValue() {
-		return value;
+		return value.getValue();
 	}
 	
-	public void setValue(int value){
-		this.value = value;
+	public synchronized void setValue(int value){
+		this.value.setValue(value);
 	}
 	
 	@Override

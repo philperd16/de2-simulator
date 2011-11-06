@@ -8,6 +8,7 @@ public class Operand implements OperationElement {
 	int precedence;
 	
 	private Operand(boolean isVariable, String variableName, String value, int precedence){
+		this.isVariable = isVariable;
 		if ( isVariable ){
 			this.variableName = variableName;
 		}
@@ -34,6 +35,11 @@ public class Operand implements OperationElement {
 	@Override
 	public String getIdentifier() {
 		return (isVariable)? variableName : simpleValue;
+	}
+	
+	@Override
+	public String toString() {
+		return getIdentifier();
 	}
 	
 }
