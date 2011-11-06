@@ -24,6 +24,9 @@ public class BinaryOperatorFactory {
 		else if ( operator.equals("-") ){
 			return new BitwiseSubtractOperator(precedence);
 		}
+		else if ( operator.equals("-!") ){
+			return new BitwiseSubtractOperatorInverted(precedence);
+		}
 		else if ( operator.equals(">>") ){
 			return new LogicalShiftRightOperator(precedence);
 		}

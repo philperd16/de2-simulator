@@ -21,9 +21,9 @@ public class Value {
 	}
 	
 	public void setValue(int value, int address){
-		this.registers[address] = value % (1 << size);
+		this.registers[address] = value % (1L << size);
 		if ( value < 0 ){
-			this.registers[address] = this.registers[address] + (1 << size);
+			this.registers[address] = this.registers[address] + (1L << size);
 		}
 	}
 	

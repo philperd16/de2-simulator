@@ -1,4 +1,4 @@
-package simulator;
+package hdl_binding;
 
 import java.util.Set;
 

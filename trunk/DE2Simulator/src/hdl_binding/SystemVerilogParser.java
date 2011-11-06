@@ -10,8 +10,6 @@ import hardware_model.Variable;
 import java.util.HashSet;
 import java.util.Set;
 
-import simulator.Parser;
-
 public class SystemVerilogParser implements Parser {
 
 	Set<String> modules;
