@@ -1,18 +1,24 @@
 package hardware_model;
 
+import hardware_model.operation.Operation;
+
 
 public class Condition {
 
-	Variable test;
+	Operation test;
 	int expectedValue;
 	
-	public Condition(Variable variable, int expectedValue){
-		this.test = variable;
+	public Condition(Operation test, int expectedValue){
+		this.test = test;
 		this.expectedValue = expectedValue;
 	}
-	
-	public boolean isTrue(){
-		return test.getValue() == expectedValue;
+
+	public Object getExpectedValue() {
+		return expectedValue;
 	}
 
+	public Operation getTest() {
+		return test;
+	}
+	
 }

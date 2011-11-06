@@ -1,7 +1,9 @@
 package simulator;
 
 import hardware_model.Assignment;
-import hardware_model.Combinational;
+import hardware_model.CodeBlock;
+import hardware_model.Instruction;
+import hardware_model.Instruction.InstructionType;
 import hardware_model.ModuleDefinition;
 import hardware_model.Variable;
 import hdl_binding.Parser;
@@ -37,13 +39,17 @@ public class SystemVerilogSimulator {
 
 			model.put(module, new HashSet<Variable>(module.getAllVariables()));
 
-			for (Combinational combinational : module.getCombinationalBlocks()) {
+			for (CodeBlock combinational : module.getCombinationalBlocks()) {
 				Set<InstructionThread> threads = new HashSet<InstructionThread>();
-				for (Assignment instruction : combinational.getInstructions()) {
-					InstructionThread combinationalAssignment = new InstructionThread(
-							instruction, module.getAllVariables(),
-							combinational.getLoopingCondition());
-					threads.add(combinationalAssignment);
+				for (Instruction instruction : combinational.getInstructions()) {
+					if ( instruction.getType().equals(InstructionType.ASSIGNMENT) ){
+						AssignmentThread combinationalAssignment = new AssignmentThread(
+								(Assignment) instruction, module.getAllVariables());
+						threads.add(combinationalAssignment);
+					}
+					else if ( instruction.getType().equals(InstructionType.CODE_BLOCK) ){
+						threads.add(getInstructionThreads((CodeBlock)instruction, module.getAllVariables()));
+					}
 				}
 				combinationalThreads.put(module, threads);
 			}
@@ -51,10 +57,24 @@ public class SystemVerilogSimulator {
 		timer = new Timer();
 	}
 
+	private InstructionThread getInstructionThreads(CodeBlock codeBlock, Set<Variable> envVars) {
+		ConditionalThread thread = new ConditionalThread(codeBlock.getCondition(), envVars);
+		for ( Instruction instruction : codeBlock.getInstructions() ){
+			if ( instruction.getType().equals(InstructionType.ASSIGNMENT) ){
+				InstructionThread combinationalAssignment =
+						new AssignmentThread((Assignment) instruction, envVars);
+				thread.add(combinationalAssignment);
+			}
+			else if ( instruction.getType().equals(InstructionType.CODE_BLOCK) ){
+				thread.add(getInstructionThreads((CodeBlock) instruction, envVars));
+			}
+		}
+		return thread;
+	}
+
 	public void startSimulation() {
 		for (ModuleDefinition module : combinationalThreads.keySet()) {
-			for (InstructionThread instruction : combinationalThreads
-					.get(module)) {
+			for (InstructionThread instruction : combinationalThreads.get(module)) {
 				timer.scheduleAtFixedRate(instruction, 500, (long) (10 + Math.random()));
 			}
 		}

@@ -2,7 +2,7 @@ package hardware_model;
 
 import hardware_model.operation.Operation;
 
-public class Assignment {
+public class Assignment implements Instruction {
 
 	Variable assigningVariable;
 	Operation operation;
@@ -21,6 +21,11 @@ public class Assignment {
 
 	public void setAssignedOperation(Operation assignedOperation) {
 		operation = assignedOperation;
+	}
+	
+	@Override
+	public InstructionType getType() {
+		return InstructionType.ASSIGNMENT;
 	}
 	
 	@Override
