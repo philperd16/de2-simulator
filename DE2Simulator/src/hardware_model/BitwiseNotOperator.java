@@ -1,19 +1,19 @@
 package hardware_model;
 
-public class BitwiseNotOperator extends Operator {
+public class BitwiseNotOperator extends UnaryOperator {
 
 	public BitwiseNotOperator(int precedence) {
 		super(precedence);
 	}
 
 	@Override
-	public OperationElementType getType() {
-		return OperationElementType.UNARY_OPERATOR;
+	public String getIdentifier() {
+		return "~";
 	}
 
 	@Override
-	public String getIdentifier() {
-		return "~";
+	public int doOperation(int operand1) {
+		return ~operand1;
 	}
 
 }

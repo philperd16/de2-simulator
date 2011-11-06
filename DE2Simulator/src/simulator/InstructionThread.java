@@ -1,47 +1,80 @@
 package simulator;
 
 import hardware_model.Assignment;
+import hardware_model.BinaryOperator;
+import hardware_model.Condition;
 import hardware_model.Operation;
 import hardware_model.OperationElement;
 import hardware_model.OperationElement.OperationElementType;
+import hardware_model.UnaryOperator;
 import hardware_model.Variable;
 
 import java.util.Iterator;
-import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.TimerTask;
 
-public class InstructionThread implements Runnable{
+public class InstructionThread extends TimerTask{
 
 	Assignment instruction;
 	Set<Variable> environmentVariables;
+	Condition condition;
 	
-	public InstructionThread(Assignment instruction, Set<Variable> environmentVariables){
+	public InstructionThread(Assignment instruction,
+			Set<Variable> environmentVariables,
+			Condition condition){
 		this.instruction = instruction;
 		this.environmentVariables = environmentVariables;
+		this.condition = condition;
 	}
 	
 	public int calculateResult(Operation assignedOperation) {
-		//FIXME Finish this method
 		int result = 0;
-		PriorityQueue<OperationElement> steps = assignedOperation.getSteps();
-		Iterator<OperationElement> iterator = steps.iterator();
+		Iterator<OperationElement> iterator = assignedOperation.getSteps().iterator();
 		while ( iterator.hasNext() ){
 			OperationElement current = iterator.next();
+			//Following 3 conditions may only be caught by the first operation element
 			if ( current.getType().equals(OperationElementType.VARIABLE) ){
-				result += getVariableValue(current.getIdentifier());
-				steps.remove();
+				result = getVariableValue(current.getIdentifier());
 			}
 			else if ( current.getType().equals(OperationElementType.VALUE) ){
-				result += getParsedValue(current.getIdentifier());
-				steps.remove();
-			}
-			else if ( current.getType().equals(OperationElementType.BINARY_OPERATOR) ){
-				//create a method doOperation for the Operator implementations, which receives both operands and returns result
+				result = getParsedValue(current.getIdentifier());
 			}else if ( current.getType().equals(OperationElementType.UNARY_OPERATOR) ){
-				//create a method doOperation for the Operator implementations, which receives both operands and returns result
+				if ( !((UnaryOperator) current).isInverted() ){
+					OperationElement nextOperand = iterator.next();
+					if ( nextOperand.getType().equals(OperationElementType.VALUE) ){
+						result = ((UnaryOperator) current).doOperation(getParsedValue(nextOperand.getIdentifier()));
+					}
+					else if ( nextOperand.getType().equals(OperationElementType.VARIABLE) ){
+						result = ((UnaryOperator) current).doOperation(getVariableValue(nextOperand.getIdentifier()));
+					}
+				}
+				else{
+					result = ((UnaryOperator) current).doOperation(result);
+				}
+			}
+			//This condition governs the rest of the operation elements
+			else if ( current.getType().equals(OperationElementType.BINARY_OPERATOR) ){
+				OperationElement nextOperand = iterator.next();
+				if ( nextOperand.getType().equals(OperationElementType.VALUE) ){
+					result = ((BinaryOperator) current).doOperation(result, getParsedValue(nextOperand.getIdentifier()));
+				}
+				else if ( nextOperand.getType().equals(OperationElementType.VARIABLE) ){
+					result = ((BinaryOperator) current).doOperation(result, getVariableValue(nextOperand.getIdentifier()));
+				}
+				else if ( current.getType().equals(OperationElementType.UNARY_OPERATOR) ){
+					OperationElement finalOperand = iterator.next();
+					int unaryOperationResult = 0;
+					if ( finalOperand.getType().equals(OperationElementType.VALUE) ){
+						unaryOperationResult = ((UnaryOperator) current).doOperation(getParsedValue(finalOperand.getIdentifier()));
+					}
+					else if ( finalOperand.getType().equals(OperationElementType.VARIABLE) ){
+						unaryOperationResult = ((UnaryOperator) current).doOperation(getVariableValue(finalOperand.getIdentifier()));
+					}
+					result = ((BinaryOperator) current).doOperation(result, unaryOperationResult);
+				}
 			}
 		}
-		return -1;
+		return result;
 	}
 	
 	private int getParsedValue(String identifier) {
@@ -49,13 +82,16 @@ public class InstructionThread implements Runnable{
 			return Integer.parseInt(identifier);
 		}
 		else {
-			if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'"))) == 'b' ){
+			if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'b' ){
 				return parseBinaryString(identifier);
 			}
-			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'"))) == 'x' ){
+			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'x' ){
 				return parseBinaryString(hexToBinaryString(identifier));
 			}
-			return -1;
+			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'd' ){
+				return Integer.parseInt(identifier.split("'")[1]);
+			}
+			else return -1;
 		}
 	}
 
@@ -137,10 +173,9 @@ public class InstructionThread implements Runnable{
 
 	@Override
 	public void run() {
-		while ( true ){
+		if ( condition == null ? true : condition.isTrue() ){
 			int result = calculateResult(this.instruction.getAssignedOperation());
 			this.instruction.getAssigningVariable().setValue(result);
-			Thread.yield();
 		}
 	}
 	

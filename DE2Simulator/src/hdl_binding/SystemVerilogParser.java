@@ -59,7 +59,7 @@ public class SystemVerilogParser implements Parser {
 						+" "+inputOrOutputVariable.substring(closingBracketPosition+1);
 			}
 			
-			String[] elements = inputOrOutputVariable.split(" ");
+			String[] elements = inputOrOutputVariable.split(" {1,}+");
 			String meaning = elements[0];
 			String kind = elements[1];
 			int size = 1;
@@ -89,6 +89,8 @@ public class SystemVerilogParser implements Parser {
 		
 		String moduleBodyScope = retrieveModuleBodyScope(moduleCode);
 
+		Combinational combinationalBlock = new Combinational();
+		
 		for ( String line : moduleBodyScope.split("\n") ){
 			
 			line = line.trim();
@@ -118,7 +120,7 @@ public class SystemVerilogParser implements Parser {
 					line = line.substring(0, closingBracketPosition+1)+" "+line.substring(closingBracketPosition+1);
 				}
 				
-				String[] elements = line.split(" ");
+				String[] elements = line.split(" {1,}+");
 				String kind = elements[0];
 				int size = 1;
 				String name;
@@ -142,8 +144,6 @@ public class SystemVerilogParser implements Parser {
 				
 			}
 			else if ( line.indexOf("always_comb") != -1 ){
-				
-				Combinational combinationalBlock = new Combinational();
 				
 				line = line.substring(line.indexOf("always_comb")+11);
 				
