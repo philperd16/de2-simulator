@@ -1,4 +1,4 @@
-package hardware_model;
+package hardware_model.operation;
 
 import java.util.ArrayList;
 import java.util.Collection;

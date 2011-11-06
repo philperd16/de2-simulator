@@ -1,5 +1,7 @@
 package hardware_model;
 
+import hardware_model.operation.Operation;
+
 public class Assignment {
 
 	Variable assigningVariable;

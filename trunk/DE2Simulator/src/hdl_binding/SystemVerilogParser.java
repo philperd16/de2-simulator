@@ -4,8 +4,8 @@ import hardware_model.Assignment;
 import hardware_model.Combinational;
 import hardware_model.HardwareModel;
 import hardware_model.ModuleDefinition;
-import hardware_model.Operation;
 import hardware_model.Variable;
+import hardware_model.operation.Operation;
 
 import java.util.HashSet;
 import java.util.Set;

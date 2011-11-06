@@ -1,4 +1,4 @@
-package hardware_model;
+package hardware_model.operation;
 
 
 public class LogicalAndOperator extends BinaryOperator {

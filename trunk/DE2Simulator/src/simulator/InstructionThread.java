@@ -1,13 +1,13 @@
 package simulator;
 
 import hardware_model.Assignment;
-import hardware_model.BinaryOperator;
 import hardware_model.Condition;
-import hardware_model.Operation;
-import hardware_model.OperationElement;
-import hardware_model.OperationElement.OperationElementType;
-import hardware_model.UnaryOperator;
 import hardware_model.Variable;
+import hardware_model.operation.BinaryOperator;
+import hardware_model.operation.Operation;
+import hardware_model.operation.OperationElement;
+import hardware_model.operation.OperationElement.OperationElementType;
+import hardware_model.operation.UnaryOperator;
 
 import java.util.Iterator;
 import java.util.Set;
