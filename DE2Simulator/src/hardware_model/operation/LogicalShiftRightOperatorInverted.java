@@ -1,19 +1,19 @@
-package hardware_model;
+package hardware_model.operation;
 
-public class LogicalShiftLeftOperatorInverted extends LogicalShiftLeftOperator {
+public class LogicalShiftRightOperatorInverted extends LogicalShiftRightOperator {
 
-	public LogicalShiftLeftOperatorInverted(int precedence) {
+	public LogicalShiftRightOperatorInverted(int precedence) {
 		super(precedence);
 	}
 
 	@Override
 	public String getIdentifier(){
-		return "<<!";
+		return ">>!";
 	}
 	
 	@Override
 	public int doOperation(int operand1, int operand2) {
 		return super.doOperation(operand2, operand1);
 	}
-	
+
 }

@@ -1,8 +1,8 @@
-package hardware_model;
+package hardware_model.operation;
 
-public class LogicShiftLeftOperator extends Operator {
+public class ArihtimeticShiftRightOperator extends Operator {
 
-	public LogicShiftLeftOperator(int precedence) {
+	public ArihtimeticShiftRightOperator(int precedence) {
 		super(precedence);
 	}
 
@@ -13,7 +13,7 @@ public class LogicShiftLeftOperator extends Operator {
 
 	@Override
 	public String getIdentifier() {
-		return "<<";
+		return ">>>";
 	}
 
 }
