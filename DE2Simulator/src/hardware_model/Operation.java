@@ -49,7 +49,8 @@ public class Operation {
 				break;
 			}
 			operationDescription =
-					operationDescription.substring(0, openingParentesisPosition+1)
+					operationDescription.substring(0, openingParentesisPosition)
+					+" "+operationDescription.substring(openingParentesisPosition,openingParentesisPosition+1)
 					+" "+operationDescription.substring(openingParentesisPosition+1);
 		}
 		
@@ -61,7 +62,8 @@ public class Operation {
 			}
 			operationDescription =
 					operationDescription.substring(0, closingParentesisPosition)
-					+" "+operationDescription.substring(closingParentesisPosition);
+					+" "+operationDescription.substring(closingParentesisPosition, closingParentesisPosition+1)
+					+" "+operationDescription.substring(closingParentesisPosition+1);
 		}
 		
 		String[] operators = { "&", "&&", "|", "||", "+", "-", ">>", "<<", "~", "^" };
@@ -99,7 +101,10 @@ public class Operation {
 			}
 			else if ( isUnaryOperator(opsElements[i]) ){
 				if ( isOpeningParentesis(opsElements[i+1]) ){
-					operationElements.add(UnaryOperatorFactory.createNewUnaryOperator(opsElements[i]+"!", operatorPrecedence+1));
+					OperationElement operator = UnaryOperatorFactory.createNewUnaryOperator(opsElements[i]+"!", operatorPrecedence+1);
+					operationElements.add(new Prompt(operator, operatorPrecedence+1, true));
+					operationElements.add(operator);
+					operationElements.add(new Prompt(operator, operatorPrecedence, false));
 				}
 				else operationElements.add(UnaryOperatorFactory.createNewUnaryOperator(opsElements[i], operatorPrecedence));
 				i++;
@@ -107,7 +112,10 @@ public class Operation {
 			else if ( isCommutativeBinaryOperator(opsElements[i]) ){
 				if ( isOpeningParentesis(opsElements[i+1]) ||
 						( isUnaryOperator(opsElements[i+1]) && isOpeningParentesis(opsElements[i+2])) ){
-					operationElements.add(BinaryOperatorFactory.createNewBinaryOperator(opsElements[i], operatorPrecedence+1));
+					OperationElement operator = BinaryOperatorFactory.createNewBinaryOperator(opsElements[i], operatorPrecedence+1);
+					operationElements.add(new Prompt(operator, operatorPrecedence+1, true));
+					operationElements.add(operator);
+					operationElements.add(new Prompt(operator, operatorPrecedence, false));
 				}
 				else operationElements.add(BinaryOperatorFactory.createNewBinaryOperator(opsElements[i], operatorPrecedence));
 				i++; 
@@ -115,7 +123,10 @@ public class Operation {
 			else if ( isNonCommutativeBinaryOperator(opsElements[i]) ){
 				if ( isOpeningParentesis(opsElements[i+1]) ||
 						( isUnaryOperator(opsElements[i+1]) && isOpeningParentesis(opsElements[i+2])) ){
-					operationElements.add(BinaryOperatorFactory.createNewBinaryOperator(opsElements[i]+"!", operatorPrecedence+1));
+					OperationElement operator = BinaryOperatorFactory.createNewBinaryOperator(opsElements[i]+"!", operatorPrecedence+1);
+					operationElements.add(new Prompt(operator, operatorPrecedence+1, true));
+					operationElements.add(operator);
+					operationElements.add(new Prompt(operator, operatorPrecedence, false));
 				}
 				else operationElements.add(BinaryOperatorFactory.createNewBinaryOperator(opsElements[i], operatorPrecedence));
 				i++;

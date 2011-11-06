@@ -4,7 +4,7 @@ package hardware_model;
 public interface OperationElement {
 
 	public enum OperationElementType{
-		VARIABLE, VALUE, BINARY_OPERATOR, UNARY_OPERATOR;
+		VARIABLE, VALUE, BINARY_OPERATOR, UNARY_OPERATOR, PROMPT;
 	}
 	
 	OperationElementType getType();

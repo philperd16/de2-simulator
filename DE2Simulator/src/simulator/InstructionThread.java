@@ -27,11 +27,14 @@ public class InstructionThread extends TimerTask{
 		this.condition = condition;
 	}
 	
-	public int calculateResult(Operation assignedOperation) {
+	public int calculateResult(Operation assignedOperation){
+		return calculateResult(assignedOperation.getSteps().iterator(), null);
+	}
+	
+	public int calculateResult(Iterator<OperationElement> steps, String stopPrompt) {
 		int result = 0;
-		Iterator<OperationElement> iterator = assignedOperation.getSteps().iterator();
-		while ( iterator.hasNext() ){
-			OperationElement current = iterator.next();
+		while ( steps.hasNext() ){
+			OperationElement current = steps.next();
 			//Following 3 conditions may only be caught by the first operation element
 			if ( current.getType().equals(OperationElementType.VARIABLE) ){
 				result = getVariableValue(current.getIdentifier());
@@ -40,12 +43,15 @@ public class InstructionThread extends TimerTask{
 				result = getParsedValue(current.getIdentifier());
 			}else if ( current.getType().equals(OperationElementType.UNARY_OPERATOR) ){
 				if ( !((UnaryOperator) current).isInverted() ){
-					OperationElement nextOperand = iterator.next();
+					OperationElement nextOperand = steps.next();
 					if ( nextOperand.getType().equals(OperationElementType.VALUE) ){
 						result = ((UnaryOperator) current).doOperation(getParsedValue(nextOperand.getIdentifier()));
 					}
 					else if ( nextOperand.getType().equals(OperationElementType.VARIABLE) ){
 						result = ((UnaryOperator) current).doOperation(getVariableValue(nextOperand.getIdentifier()));
+					}
+					else if ( nextOperand.getType().equals(OperationElementType.PROMPT) ){
+						result = ((UnaryOperator) current).doOperation(calculateResult(steps, nextOperand.getIdentifier().replace("{", "}")));
 					}
 				}
 				else{
@@ -54,7 +60,7 @@ public class InstructionThread extends TimerTask{
 			}
 			//This condition governs the rest of the operation elements
 			else if ( current.getType().equals(OperationElementType.BINARY_OPERATOR) ){
-				OperationElement nextOperand = iterator.next();
+				OperationElement nextOperand = steps.next();
 				if ( nextOperand.getType().equals(OperationElementType.VALUE) ){
 					result = ((BinaryOperator) current).doOperation(result, getParsedValue(nextOperand.getIdentifier()));
 				}
@@ -62,7 +68,7 @@ public class InstructionThread extends TimerTask{
 					result = ((BinaryOperator) current).doOperation(result, getVariableValue(nextOperand.getIdentifier()));
 				}
 				else if ( current.getType().equals(OperationElementType.UNARY_OPERATOR) ){
-					OperationElement finalOperand = iterator.next();
+					OperationElement finalOperand = steps.next();
 					int unaryOperationResult = 0;
 					if ( finalOperand.getType().equals(OperationElementType.VALUE) ){
 						unaryOperationResult = ((UnaryOperator) current).doOperation(getParsedValue(finalOperand.getIdentifier()));
@@ -70,7 +76,18 @@ public class InstructionThread extends TimerTask{
 					else if ( finalOperand.getType().equals(OperationElementType.VARIABLE) ){
 						unaryOperationResult = ((UnaryOperator) current).doOperation(getVariableValue(finalOperand.getIdentifier()));
 					}
+					else if ( nextOperand.getType().equals(OperationElementType.PROMPT) ){
+						result = ((UnaryOperator) current).doOperation(calculateResult(steps, nextOperand.getIdentifier().replace("{", "}")));
+					}
 					result = ((BinaryOperator) current).doOperation(result, unaryOperationResult);
+				}
+				else if ( nextOperand.getType().equals(OperationElementType.PROMPT) ){
+					result = ((BinaryOperator) current).doOperation(result, calculateResult(steps, nextOperand.getIdentifier().replace("{", "}")));
+				}
+			}
+			else if ( current.getType().equals(OperationElementType.PROMPT) ) {
+				if ( stopPrompt != null && current.getIdentifier().equals(stopPrompt) ){
+					return result;
 				}
 			}
 		}
