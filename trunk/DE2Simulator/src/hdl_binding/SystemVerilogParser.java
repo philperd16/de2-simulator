@@ -87,8 +87,6 @@ public class SystemVerilogParser implements Parser {
 		
 		String moduleBodyScope = retrieveModuleBodyScope(moduleCode);
 
-		Combinational combinationalBlock = new Combinational();
-		
 		for ( String line : moduleBodyScope.split("\n") ){
 			
 			line = line.trim();
@@ -142,6 +140,8 @@ public class SystemVerilogParser implements Parser {
 				
 			}
 			else if ( line.indexOf("always_comb") != -1 ){
+				
+				Combinational combinationalBlock = new Combinational();
 				
 				line = line.substring(line.indexOf("always_comb")+11);
 				
