@@ -1,30 +1,22 @@
 package simulator;
 
-import hardware_model.Assignment;
-import hardware_model.Condition;
 import hardware_model.Variable;
 import hardware_model.operation.BinaryOperator;
 import hardware_model.operation.Operation;
 import hardware_model.operation.OperationElement;
-import hardware_model.operation.OperationElement.OperationElementType;
 import hardware_model.operation.UnaryOperator;
+import hardware_model.operation.OperationElement.OperationElementType;
 
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TimerTask;
 
-public class InstructionThread extends TimerTask{
+public abstract class InstructionThread extends TimerTask{
 
-	Assignment instruction;
 	Set<Variable> environmentVariables;
-	Condition condition;
 	
-	public InstructionThread(Assignment instruction,
-			Set<Variable> environmentVariables,
-			Condition condition){
-		this.instruction = instruction;
+	public InstructionThread(Set<Variable> environmentVariables){
 		this.environmentVariables = environmentVariables;
-		this.condition = condition;
 	}
 	
 	public int calculateResult(Operation assignedOperation){
@@ -186,14 +178,6 @@ public class InstructionThread extends TimerTask{
 			}
 		}
 		return 0;
-	}
-
-	@Override
-	public void run() {
-		if ( condition == null ? true : condition.isTrue() ){
-			int result = calculateResult(this.instruction.getAssignedOperation());
-			this.instruction.getAssigningVariable().setValue(result);
-		}
 	}
 	
 }

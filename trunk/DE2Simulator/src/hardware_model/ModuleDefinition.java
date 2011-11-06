@@ -1,6 +1,5 @@
 package hardware_model;
 
-import hardware_model.Sequential;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,16 +10,16 @@ public class ModuleDefinition {
 	Set<Variable> inputVariables;
 	Set<Variable> outputVariables;
 	Set<Variable> localVariables;
-	Set<Combinational> combinationalBlocks;
-	Set<Sequential> sequentialBlocks;
+	Set<CodeBlock> combinationalBlocks;
+	Set<CodeBlock> sequentialBlocks;
 	
 	public ModuleDefinition(String moduleName) {
 		this.moduleName = moduleName;
 		this.inputVariables = new HashSet<Variable>();
 		this.outputVariables = new HashSet<Variable>();
 		this.localVariables = new HashSet<Variable>();
-		this.combinationalBlocks = new HashSet<Combinational>();
-		this.sequentialBlocks = new HashSet<Sequential>();
+		this.combinationalBlocks = new HashSet<CodeBlock>();
+		this.sequentialBlocks = new HashSet<CodeBlock>();
 	}
 
 	public String getModuleName() {
@@ -43,11 +42,11 @@ public class ModuleDefinition {
 		return null;
 	}
 
-	public Set<Combinational> getCombinationalBlocks() {
+	public Set<CodeBlock> getCombinationalBlocks() {
 		return combinationalBlocks;
 	}
 
-	public Set<Sequential> getSequentialBlocks() {
+	public Set<CodeBlock> getSequentialBlocks() {
 		return sequentialBlocks;
 	}
 
@@ -72,7 +71,7 @@ public class ModuleDefinition {
 		localVariables.add(new Variable("local", kind, size, name, amount));
 	}
 
-	public void addCombinationalBlock(Combinational combinationalBlock) {
+	public void addCombinationalBlock(CodeBlock combinationalBlock) {
 		combinationalBlocks.add(combinationalBlock);
 	}
 

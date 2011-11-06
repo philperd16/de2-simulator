@@ -1,7 +1,7 @@
 package hdl_binding;
 
 import hardware_model.Assignment;
-import hardware_model.Combinational;
+import hardware_model.CodeBlock;
 import hardware_model.HardwareModel;
 import hardware_model.ModuleDefinition;
 import hardware_model.Variable;
@@ -141,7 +141,7 @@ public class SystemVerilogParser implements Parser {
 			}
 			else if ( line.indexOf("always_comb") != -1 ){
 				
-				Combinational combinationalBlock = new Combinational();
+				CodeBlock combinationalBlock = new CodeBlock();
 				
 				line = line.substring(line.indexOf("always_comb")+11);
 				
