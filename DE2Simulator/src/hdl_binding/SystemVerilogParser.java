@@ -2,6 +2,7 @@ package hdl_binding;
 
 import hardware_model.Assignment;
 import hardware_model.CodeBlock;
+import hardware_model.Condition;
 import hardware_model.HardwareModel;
 import hardware_model.ModuleDefinition;
 import hardware_model.Variable;
@@ -86,11 +87,16 @@ public class SystemVerilogParser implements Parser {
 		}
 		
 		String moduleBodyScope = retrieveModuleBodyScope(moduleCode);
+		moduleBodyScope = handleModuleBodyScope(moduleBodyScope);
+		String[] moduleBodyScopeLines = moduleBodyScope.split("\n");
 
-		for ( String line : moduleBodyScope.split("\n") ){
+		for ( int i=0; i<moduleBodyScopeLines.length; ){
+			
+			String line = moduleBodyScopeLines[i];
 			
 			line = line.trim();
 			if ( line.isEmpty() ){
+				i++;
 				continue;
 			}
 			
@@ -137,6 +143,7 @@ public class SystemVerilogParser implements Parser {
 					}
 				}
 				module.addLocalVariable(kind, size, name, amount);
+				i++;
 				
 			}
 			else if ( line.indexOf("always_comb") != -1 ){
@@ -160,11 +167,260 @@ public class SystemVerilogParser implements Parser {
 					}
 					assignment.setAssignedOperation(new Operation(assignedOperationOrValue));
 					combinationalBlock.addInstruction(assignment);
+					i++;
+				}
+				else if ( line.indexOf("begin") != -1 ){
+					line = line.substring(line.indexOf("begin") + 5);
+					boolean end = false;
+					while ( !end ){
+						
+						do {
+							line = moduleBodyScopeLines[++i];
+						}
+						while ( line.trim().isEmpty() );
+
+						if ( line.contains("end") ){
+							end = true;
+							i++;
+						}
+						else if ( !(line.contains("if")	|| line.contains("for") || line.contains("while")) ){
+							
+							line = line.replace(";", "");
+							String[] elements = line.split("<=");
+							String assigningVariable = elements[0].trim();
+							String assignedOperationOrValue = elements[1].trim();
+							Assignment assignment = new Assignment();
+							for ( Variable variable : module.getAllVariables() ){
+								if ( variable.getName().equals(assigningVariable)) {
+									assignment.setAssigningVariable(variable);
+									break;
+								}
+							}
+							assignment.setAssignedOperation(new Operation(assignedOperationOrValue));
+							combinationalBlock.addInstruction(assignment);
+						}
+						else if ( line.contains("if") ){
+							int conditionalBlockLinesNum = 
+									retrieveConditionalBlock(combinationalBlock, moduleBodyScopeLines, i, 
+											module.getAllVariables());
+							i += conditionalBlockLinesNum;
+						}
+						else if ( line.contains("while") ){
+							//...
+						}
+						else if ( line.contains("for") ){
+							//...
+						}
+						
+					}
 				}
 				module.addCombinationalBlock(combinationalBlock);
 			}
 		}
 		return module;
+	}
+
+	private String handleModuleBodyScope(String moduleBodyScope) {
+		
+		moduleBodyScope = moduleBodyScope.replace("\n", " ");
+		
+		String[] symbols = {"if", "else", "for", "while", "do", "(", ")", "begin", "end"};
+		
+		for ( int i=0; i<symbols.length; i++ ){
+			int openingSymbolPosition = -2;
+			while(true){
+				if ( ! symbols[i].equals("end") ){
+					openingSymbolPosition = moduleBodyScope.indexOf(symbols[i], openingSymbolPosition+2);
+				}
+				else{
+					openingSymbolPosition = moduleBodyScope.indexOf(symbols[i], openingSymbolPosition+4);
+				}
+				if ( openingSymbolPosition == -1 ){
+					break;
+				}
+				if ( !(symbols[i].equals("begin") || symbols[i].equals("end")) ){
+					moduleBodyScope = moduleBodyScope
+							.substring(0, openingSymbolPosition)
+							+ " "
+							+ moduleBodyScope
+							.substring(openingSymbolPosition,	openingSymbolPosition + symbols[i].length())
+							+ " "
+							+ moduleBodyScope
+							.substring(openingSymbolPosition + symbols[i].length());
+				}
+				else if ( symbols[i].equals("begin") ){
+					moduleBodyScope = moduleBodyScope
+							.substring(0, openingSymbolPosition)
+							+ " "
+							+ moduleBodyScope
+							.substring(openingSymbolPosition,	openingSymbolPosition + symbols[i].length())
+							+ "\n "
+							+ moduleBodyScope
+							.substring(openingSymbolPosition + symbols[i].length());
+				}
+				else if ( symbols[i].equals("end") ){
+					moduleBodyScope = moduleBodyScope
+							.substring(0, openingSymbolPosition)
+							+ " \n"
+							+ moduleBodyScope
+							.substring(openingSymbolPosition,	openingSymbolPosition + symbols[i].length())
+							+ "\n "
+							+ moduleBodyScope
+							.substring(openingSymbolPosition + symbols[i].length());
+				}
+			}
+		}
+		for ( int j=0; j<moduleBodyScope.length(); j++ ){
+			if ( moduleBodyScope.charAt(j) == ';' ){
+				moduleBodyScope = moduleBodyScope.substring(0, j)+";\n"+moduleBodyScope.substring(j+1);
+			}
+		}
+		return moduleBodyScope;
+	}
+
+	private int retrieveConditionalBlock(CodeBlock combinationalBlock, String[] moduleBodyScopeLines,
+			int lineBegin, Set<Variable> envVars) {
+
+		CodeBlock root = new CodeBlock();
+		CodeBlock currentCodeBlock = null;
+
+		String relatedConditions = "";
+		StringBuilder condition = new StringBuilder();
+		
+		for (int i = lineBegin; i < moduleBodyScopeLines.length;) {
+
+			if ( moduleBodyScopeLines[i].indexOf("if") != -1 ){
+				
+				condition = new StringBuilder();
+				String[] lineElements = moduleBodyScopeLines[i].trim().split(" {1,}+");
+				int j=0;
+				while (!lineElements[j].equals(")")) {
+					if (!( lineElements[j].equals("(") 
+							|| lineElements[j].equals("if") 
+							|| lineElements[j].equals("else") )) {
+						condition.append(lineElements[j] + " ");
+					}
+					j++;
+				}
+				j++;
+				if (!lineElements[j].equals("begin")) {
+					
+					if ( moduleBodyScopeLines[i].indexOf("else") == -1 ){
+						currentCodeBlock = new CodeBlock(new Condition(new Operation(new String(condition)), 1));
+						root.addInstruction(currentCodeBlock);
+						relatedConditions = "";
+					}
+					else{
+						currentCodeBlock = new CodeBlock(new Condition(new Operation(
+								new String("(!( "+relatedConditions+" )) || ( "+condition+ ")")), 1));
+						root.addInstruction(currentCodeBlock);
+					}
+					
+					StringBuilder assignments = new StringBuilder();
+					while ( true ){
+						assignments.append(lineElements[j]+" ");
+						if ( lineElements[j].contains(";") ){
+							break;
+						}
+						j++;
+					}
+					String assigningVariable = new String(assignments).split("<=")[0].trim();
+					String assigningOperation = new String(assignments).split("<=")[1].trim().replace(";", "");
+					Assignment assignment = new Assignment();
+					for ( Variable variable : envVars ){
+						if ( variable.getName().equals(assigningVariable) ){
+							assignment.setAssigningVariable(variable);
+							break;
+						}
+					}
+					assignment.setAssignedOperation(new Operation(assigningOperation));
+					currentCodeBlock.addInstruction(assignment);
+					
+					if ( !checkForExistenceOfRelatedConditionalBlocks(moduleBodyScopeLines, i+1) ){
+						combinationalBlock.addInstruction(root);
+						return i - lineBegin;
+					}
+					
+					if ( relatedConditions.trim().isEmpty() ){
+						relatedConditions = new String(condition);
+					}
+					else{
+						relatedConditions = "( "+relatedConditions+" ) || ( "+new String(condition)+" )";
+					}
+				} else {
+					i++;
+				}
+			}
+			else if (moduleBodyScopeLines[i].indexOf("else") != -1){
+
+				condition = new StringBuilder();
+				condition.append("(!( "+relatedConditions+"))");
+				
+				if ( !(moduleBodyScopeLines[i].contains("begin")) ){
+					
+					currentCodeBlock = new CodeBlock(new Condition(new Operation(new String(condition)), 1));					
+					root.addInstruction(currentCodeBlock);
+					
+					StringBuilder assignments = new StringBuilder();
+					assignments.append(moduleBodyScopeLines[i].replace("else", ""));					
+					String assigningVariable = new String(assignments).split("<=")[0].trim();
+					String assigningOperation = new String(assignments).split("<=")[1].trim();
+					Assignment assignment = new Assignment();
+					for ( Variable variable : envVars ){
+						if ( variable.getName().equals(assigningVariable) ){
+							assignment.setAssigningVariable(variable);
+							break;
+						}
+					}
+					assignment.setAssignedOperation(new Operation(assigningOperation));
+					currentCodeBlock.addInstruction(assignment);
+					combinationalBlock.addInstruction(root);
+					return i - lineBegin;
+				}
+				else{
+					i++;
+				}
+			}
+			else if (moduleBodyScopeLines[i].trim().isEmpty()){
+				i++;
+			}
+			else if (moduleBodyScopeLines[i].trim().equals("end") ){
+				combinationalBlock.addInstruction(root);
+				return i - lineBegin;
+			}
+			else { //may expand to include for, while and do constructs
+
+				StringBuilder assignments = new StringBuilder();
+				assignments.append(moduleBodyScopeLines[i].trim().replace(";", ""));
+				String assigningVariable = new String(assignments).split("<=")[0].trim();
+				String assigningOperation = new String(assignments).split("<=")[1].trim();
+				Assignment assignment = new Assignment();
+				for ( Variable variable : envVars ){
+					if ( variable.getName().equals(assigningVariable) ){
+						assignment.setAssigningVariable(variable);
+						break;
+					}
+				}
+				assignment.setAssignedOperation(new Operation(assigningOperation));
+				currentCodeBlock.addInstruction(assignment);
+			}
+		}
+		combinationalBlock.addInstruction(root);
+		return moduleBodyScopeLines.length - lineBegin;
+	}
+
+	private boolean checkForExistenceOfRelatedConditionalBlocks(
+			String[] moduleBodyScopeLines, int lineBegin) {
+		boolean relatedConditionalConstructFound = false;
+		for ( int i=lineBegin; i<moduleBodyScopeLines.length; i++ ){
+			if ( moduleBodyScopeLines[i].indexOf("if") != -1 && moduleBodyScopeLines[i].indexOf("else") == -1 ){
+				return relatedConditionalConstructFound;
+			}
+			else if ( moduleBodyScopeLines[i].indexOf("else") != -1 ){
+				relatedConditionalConstructFound = true;
+			}
+		}
+		return relatedConditionalConstructFound;
 	}
 
 	@Override

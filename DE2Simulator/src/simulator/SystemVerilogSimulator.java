@@ -109,18 +109,18 @@ public class SystemVerilogSimulator {
 		Thread controller = new Thread(new SimulatorController(simulator));
 		controller.start();
 		
-//		while (true) {
-//
-//			for ( ModuleDefinition module : simulator.getModel().keySet() ){
-//				System.out.println("\nMODULE: "+module.getModuleName()+"\n");
-//				for ( Variable var : module.getAllVariables() ){
-//					System.out.format("\t%10s - %3d + (%s/%s)\n", var.getName(), var.getValue(), var.getMeaning(), var.getKind());
-//				}
-//			}
-//			
-//			Thread.sleep(10000);
-//
-//		}
+		while (true) {
+
+			for ( ModuleDefinition module : simulator.getModel().keySet() ){
+				System.out.println("\nMODULE: "+module.getModuleName()+"\n");
+				for ( Variable var : module.getAllVariables() ){
+					System.out.format("\t%10s - %3d + (%s/%s)\n", var.getName(), var.getValue(), var.getMeaning(), var.getKind());
+				}
+			}
+			
+			Thread.sleep(10000);
+
+		}
 	}
 
 	private static synchronized SystemVerilogSimulator getInstance() {
