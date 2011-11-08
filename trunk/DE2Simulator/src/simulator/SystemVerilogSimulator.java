@@ -38,9 +38,9 @@ public class SystemVerilogSimulator {
 				.getDefinedModules()) {
 
 			model.put(module, new HashSet<Variable>(module.getAllVariables()));
+			Set<InstructionThread> threads = new HashSet<InstructionThread>();
 
 			for (CodeBlock combinational : module.getCombinationalBlocks()) {
-				Set<InstructionThread> threads = new HashSet<InstructionThread>();
 				for (Instruction instruction : combinational.getInstructions()) {
 					if ( instruction.getType().equals(InstructionType.ASSIGNMENT) ){
 						AssignmentThread combinationalAssignment = new AssignmentThread(
@@ -51,8 +51,8 @@ public class SystemVerilogSimulator {
 						threads.add(getInstructionThreads((CodeBlock)instruction, module.getAllVariables()));
 					}
 				}
-				combinationalThreads.put(module, threads);
 			}
+			combinationalThreads.put(module, threads);
 		}
 		timer = new Timer();
 	}
