@@ -20,14 +20,14 @@ public class Value {
 		return amount;
 	}
 	
-	public void setValue(int value, int address){
+	public synchronized void setValue(int value, int address){
 		this.registers[address] = value % (1L << size);
 		if ( value < 0 ){
 			this.registers[address] = this.registers[address] + (1L << size);
 		}
 	}
 	
-	public void setValue(int value){
+	public synchronized void setValue(int value){
 		this.setValue(value, 0);
 	}
 	

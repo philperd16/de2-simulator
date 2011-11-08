@@ -8,13 +8,13 @@ public class CodeBlock implements Instruction {
 	Set<Instruction> instructions;
 	Condition condition;
 	
-	public CodeBlock(Set<Instruction> instructions, Condition condition){
-		this.instructions = instructions;
+	public CodeBlock(Condition condition){
+		this.instructions = new HashSet<Instruction>();
 		this.condition = condition;
 	}
 	
 	public CodeBlock(){
-		this(new HashSet<Instruction>(), null);
+		this(null);
 	}
 	
 	public Set<Instruction> getInstructions(){
