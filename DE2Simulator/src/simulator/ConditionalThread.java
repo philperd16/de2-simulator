@@ -18,7 +18,6 @@ public class ConditionalThread extends InstructionThread {
 		super(environmentVariables);
 		this.condition = condition;
 		this.instructions = new HashSet<InstructionThread>();
-		this.service = Executors.newFixedThreadPool(5);
 	}
 	
 	public void add(InstructionThread compositeInstruction){
@@ -27,6 +26,7 @@ public class ConditionalThread extends InstructionThread {
 
 	@Override
 	public void run() {
+		this.service = Executors.newFixedThreadPool(instructions.size());
 		synchronized(this){
 			if ( condition == null ? true : testCondition(condition) ){
 				for ( InstructionThread thread : instructions ){

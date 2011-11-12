@@ -174,7 +174,6 @@ public class SystemVerilogParser implements Parser {
 				else if ( line.indexOf("begin") != -1 ){
 					line = line.substring(line.indexOf("begin") + 5);
 					boolean end = false;
-					i++;
 					while ( !end ){
 
 						do {
@@ -304,7 +303,7 @@ public class SystemVerilogParser implements Parser {
 
 			if ( stage != 0 && !waitingEndStatement && canExit ){
 				checkConsistencyOfConditionalCombinationalConstruct(IFAssignedVariables, ELSEIFAssignedVariables, ELSEAssignedVariables);
-				return (evaluatedLinesNum+1) - lineBegin;
+				return (evaluatedLinesNum) - lineBegin;
 			}
 			
 			if ( moduleBodyScopeLines[i].indexOf("if") != -1 ){
@@ -428,7 +427,6 @@ public class SystemVerilogParser implements Parser {
 			}
 			else if (moduleBodyScopeLines[i].trim().isEmpty()){
 				i++;
-				evaluatedLinesNum = i;
 			}
 			else if (moduleBodyScopeLines[i].trim().equals("end") ){
 				if ( stage % 2 == 0 ){
@@ -477,7 +475,7 @@ public class SystemVerilogParser implements Parser {
 			}
 		}
 		checkConsistencyOfConditionalCombinationalConstruct(IFAssignedVariables, ELSEIFAssignedVariables, ELSEAssignedVariables);
-		return (evaluatedLinesNum+1) - lineBegin;//TODO check consistency
+		return (evaluatedLinesNum) - lineBegin;//TODO check consistency
 	}
 
 	private void checkConsistencyOfConditionalCombinationalConstruct(
