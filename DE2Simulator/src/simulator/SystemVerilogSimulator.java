@@ -75,7 +75,7 @@ public class SystemVerilogSimulator {
 	public void startSimulation() {
 		for (ModuleDefinition module : combinationalThreads.keySet()) {
 			for (InstructionThread instruction : combinationalThreads.get(module)) {
-				timer.scheduleAtFixedRate(instruction, 500, (long) (10 + Math.random()));
+				timer.scheduleAtFixedRate(instruction, 500, 250);
 			}
 		}
 	}
@@ -93,7 +93,7 @@ public class SystemVerilogSimulator {
 		
 		Scanner sc = new Scanner(System.in);
 		sc.useDelimiter("finish");
-
+		
 		Set<String> modules = new HashSet<String>();
 		while (sc.hasNext()) {
 			String next = sc.next();

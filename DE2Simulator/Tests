@@ -1,0 +1,27 @@
+module ula (input logic [3:0] A, input logic [3:0] B, output logic [31:0] C, input logic ENABLE, input logic [2:0] OPERATION );
+
+always_comb begin
+
+	if ( ENABLE ) begin
+
+		if ( OPERATION == 'b0001 ) 	    C <= A &   B;
+		else if ( OPERATION == 'b0010 ) C <= A &&  B;
+		else if ( OPERATION == 'b0011 ) C <= A |   B;
+		else if ( OPERATION == 'b0100 ) C <= A ||  B;
+		else if ( OPERATION == 'b0101 ) C <= A ^   B;
+		else if ( OPERATION == 'b0110 ) C <= A +   B;
+		else if ( OPERATION == 'b0111 ) C <= A -   B;
+		else if ( OPERATION == 'b1000 ) C <= A >>  B;
+		else if ( OPERATION == 'b1001 ) C <= A >>> B;
+		else if ( OPERATION == 'b1010 ) C <= A <<  B;
+		else if ( OPERATION == 'b1011 ) C <= A ==  B;
+		else if ( OPERATION == 'b1100 ) C <= A >   B;
+		else if ( OPERATION == 'b1101 ) C <= A >=  B;
+		else if ( OPERATION == 'b1110 ) C <= A <   B;
+		else if ( OPERATION == 'b1111 ) C <= A <=  B;
+		else C <= 12345;
+	end
+
+end
+
+endmodule

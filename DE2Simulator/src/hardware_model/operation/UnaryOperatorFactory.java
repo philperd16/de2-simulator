@@ -9,6 +9,12 @@ public class UnaryOperatorFactory {
 		else if ( operator.equals("~!") ){
 			return new BitwiseNotOperatorInverted(precedence);
 		}
+		else if ( operator.equals("!") ){
+			return new LogicalNotOperator(precedence);
+		}
+		else if ( operator.equals("!!") ){
+			return new LogicalNotOperatorInverted(precedence);
+		}
 		return null;
 	}
 

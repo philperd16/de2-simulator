@@ -17,7 +17,7 @@ public abstract class UnaryOperator implements OperationElement {
 	public abstract int doOperation(int operand1);
 
 	public boolean isInverted(){
-		return getIdentifier().contains("!");
+		return getIdentifier().endsWith("!") && getIdentifier().length() < 1;
 	}
 	
 	@Override

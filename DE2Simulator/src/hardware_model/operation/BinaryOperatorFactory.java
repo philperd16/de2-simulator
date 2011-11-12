@@ -45,6 +45,36 @@ public class BinaryOperatorFactory {
 		else if ( operator.equals("<<!") ){
 			return new LogicalShiftLeftOperatorInverted(precedence);
 		}
+		else if ( operator.equals("==") ){
+			return new LogicalEqualsOperator(precedence);
+		}
+		else if ( operator.equals("!=") ){
+			return new LogicalDifferentThanOperator(precedence);
+		}
+		else if ( operator.equals(">") ){
+			return new LogicalGreaterThanOperator(precedence);
+		}
+		else if ( operator.equals(">!") ){
+			return new LogicalGreaterThanOperatorInverted(precedence);
+		}
+		else if ( operator.equals("<") ){
+			return new LogicalLessThanOperator(precedence);
+		}
+		else if ( operator.equals("<!") ){
+			return new LogicalLessThanOperatorInverted(precedence);
+		}
+		else if ( operator.equals(">=") ){
+			return new LogicalGreaterThanOrEqualsOperator(precedence);
+		}
+		else if ( operator.equals(">=!") ){
+			return new LogicalGreaterThanOrEqualsOperatorInverted(precedence);
+		}
+		else if ( operator.equals("<=") ){
+			return new LogicalLessThanOrEqualsOperator(precedence);
+		}
+		else if ( operator.equals("<=!") ){
+			return new LogicalLessThanOrEqualsOperatorInverted(precedence);
+		}
 		else{
 			return null;
 		}
