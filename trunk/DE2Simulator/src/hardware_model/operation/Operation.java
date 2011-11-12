@@ -66,7 +66,7 @@ public class Operation {
 					+" "+operationDescription.substring(closingParentesisPosition+1);
 		}
 		
-		String[] operators = { "&", "&&", "|", "||", "+", "-", ">>", "<<", "~", "^" };
+		String[] operators = { "&", "|", "+", "-", ">", "<", "~", "^", "!", "==" };
 		for ( int i=0; i<operators.length; i++ ){
 			int operatorPosition = -5;
 			while ( true ){
@@ -83,6 +83,27 @@ public class Operation {
 							operatorFinish)
 							+" "+operationDescription.substring(operatorFinish);
 				operatorPosition = operatorFinish;
+			}
+		}
+		String[] comparators = { "<=", ">=", "!=" };
+		for ( int j=0; j<comparators.length; j++ ){
+			int comparatorPosition = -5;
+			while ( true ){
+				comparatorPosition = operationDescription.indexOf(comparators[j].charAt(0), comparatorPosition+1);
+				if ( comparatorPosition == -1 ){
+					break;
+				}
+				int comparatorFinish = comparatorPosition;
+				while ( ( operationDescription.charAt(comparatorFinish) == comparators[j].charAt(0) ) ||
+						( operationDescription.charAt(comparatorFinish) == comparators[j].charAt(1) ) || 
+						( operationDescription.charAt(comparatorFinish) == ' ' ) ){
+					comparatorFinish++;
+				}
+				operationDescription = operationDescription.substring(0, comparatorPosition)
+					+operationDescription.substring(comparatorPosition, 
+							comparatorFinish).replace(" ", "")
+							+" "+operationDescription.substring(comparatorFinish);
+				comparatorPosition = comparatorFinish;
 			}
 		}
 	}
@@ -160,8 +181,9 @@ public class Operation {
 	}
 	
 	private boolean isValueOperand(String string) {
+		string = string.replace("b", "").replace("d", "").replace("h", "");
 		for ( int i=0; i<string.length(); i++ ){
-			if ( !(string.charAt(i) == '\'' || Character.isDigit(string.charAt(i))) ){
+			if ( !( (string.charAt(i)+"").equals("'") || Character.isDigit(string.charAt(i)) ) ){
 				return false;
 			}
 		}
@@ -189,18 +211,25 @@ public class Operation {
 				string.equals("|")   ||
 				string.equals("||")  ||
 				string.equals("^")   ||
-				string.equals("+");
+				string.equals("+")   ||
+				string.equals("==")  ||
+				string.equals("!=");
 	}
 	
 	private boolean isNonCommutativeBinaryOperator(String string){
-		return 	string.equals("-")  ||
+		return 	string.equals("-")   ||
 				string.equals(">>")  ||
 				string.equals(">>>") ||
-				string.equals("<<");
+				string.equals("<<")  ||
+				string.equals(">")   ||
+				string.equals("<")   ||
+				string.equals(">=")  ||
+				string.equals("<=");
 	}
 	
 	private boolean isUnaryOperator(String string) {
-		return string.equals("~");
+		return string.equals("~") ||
+			   string.equals("!");
 	}
 
 	@Override

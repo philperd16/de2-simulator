@@ -5,19 +5,20 @@ import hardware_model.Variable;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ConditionalThread extends InstructionThread {
 
 	Set<InstructionThread> instructions;
 	Condition condition;
-	Timer instructionsController;
+	ExecutorService service;
 	
 	public ConditionalThread(Condition condition, Set<Variable> environmentVariables) {
 		super(environmentVariables);
 		this.condition = condition;
 		this.instructions = new HashSet<InstructionThread>();
-		this.instructionsController = new Timer();
+		this.service = Executors.newFixedThreadPool(5);
 	}
 	
 	public void add(InstructionThread compositeInstruction){
@@ -26,9 +27,11 @@ public class ConditionalThread extends InstructionThread {
 
 	@Override
 	public void run() {
-		if ( condition == null ? true : testCondition(condition) ){
-			for ( InstructionThread thread : instructions ){
-				instructionsController.schedule(thread, 0);
+		synchronized(this){
+			if ( condition == null ? true : testCondition(condition) ){
+				for ( InstructionThread thread : instructions ){
+					service.execute(thread);
+				}
 			}
 		}
 	}

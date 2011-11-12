@@ -94,8 +94,8 @@ public abstract class InstructionThread extends TimerTask{
 			if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'b' ){
 				return parseBinaryString(identifier);
 			}
-			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'x' ){
-				return parseBinaryString(hexToBinaryString(identifier));
+			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'h' ){
+				return parseBinaryString("'b"+hexToBinaryString(identifier));
 			}
 			else if ( Character.toLowerCase(identifier.charAt(identifier.indexOf("'")+1)) == 'd' ){
 				return Integer.parseInt(identifier.split("'")[1]);
@@ -105,7 +105,7 @@ public abstract class InstructionThread extends TimerTask{
 	}
 
 	private String hexToBinaryString(String identifier) {
-		String hex = identifier.split("'")[1];
+		String hex = identifier.split("'h")[1];
 		StringBuilder binary = new StringBuilder();
 		for ( int i=0; i<hex.length(); i++ ){
 			if ( Character.toLowerCase(hex.charAt(i)) == '0' ){
@@ -163,8 +163,8 @@ public abstract class InstructionThread extends TimerTask{
 	public int parseBinaryString(String identifier) {
 		int result = 0;
 		int k = 1;
-		String binary = identifier.split("'")[1];
-		for ( int i=binary.length(); i>-1; i-- ){
+		String binary = identifier.split("'b")[1];
+		for ( int i=binary.length()-1; i>-1; i-- ){
 			result += k * Integer.parseInt(""+binary.charAt(i));
 			k = k*2;
 		}

@@ -16,8 +16,10 @@ public class AssignmentThread extends InstructionThread{
 
 	@Override
 	public void run() {
-		int result = calculateResult(this.instruction.getAssignedOperation());
-		this.instruction.getAssigningVariable().setValue(result);
+		synchronized(this){
+			int result = calculateResult(this.instruction.getAssignedOperation());
+			this.instruction.getAssigningVariable().setValue(result);
+		}
 	}
 
 }
