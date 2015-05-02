@@ -1,0 +1,1 @@
+We as students face many trouble by not having the opportunity to practice what we learn in our Computer Organization and Architecture Class, as we don't have a DE2 board at home. By having a simulator in Java we would be allowed to do some exercises at home and thus our need of some extra time in the lab would be ceased.
